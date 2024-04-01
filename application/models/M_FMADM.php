@@ -39,6 +39,11 @@ class M_FMADM extends CI_Model
 		return $duplikat;
 	}
 
+	public function detailTabel($tabel)
+	{
+		return $detailAdmin = $this->db->get($tabel)->result();
+	}
+
 	public function detailData($tabel, $index, $key)
 	{
 		$this->db->where($index, $key);
@@ -61,8 +66,20 @@ class M_FMADM extends CI_Model
 
 	public function hapusData($tabel, $id)
 	{
-		$this->db->where('id', $id);
-		return $this->db->delete($tabel);
+
+		if ($tabel == 'tabel_admin') {
+			$data = $this->M_FMADM->semuaData();
+			if (count($data['dataAdmin']) < 2) {
+				$this->session->set_flashdata('noticeDataKurang', 'Gagal!');
+				redirect(base_url('Admin/indexAkun'));
+			} else {
+				$this->db->where('id', $id);
+				return $this->db->delete($tabel);
+			}
+		} else {
+			$this->db->where('id', $id);
+			return $this->db->delete($tabel);
+		}
 	}
 
 	public function FMADM()
@@ -239,30 +256,85 @@ class M_FMADM extends CI_Model
 		return $semuaDataAlternatif;
 	}
 
+
+	//logika buuble sort
+	function bubble_sort($arr, $key)
+	{
+		$size = count($arr) - 1;
+		for ($i = 0; $i < $size; $i++) {
+			for ($j = 0; $j < $size - $i; $j++) {
+				$k = $j + 1;
+				if ($arr[$k]->$key > $arr[$j]->$key) {
+					// Swap elements at indices: $j, $k
+					list($arr[$j], $arr[$k]) = array($arr[$k], $arr[$j]);
+				}
+			}
+		}
+
+		return $arr;
+	}
+
 	//logika pengurutan descending ranking
 	public function ranking($FMADM)
 	{
 		$this->db->empty_table('tabel_perankingan_sementara');
 
-		foreach ($FMADM as $key => $value) {
-			$temp = $value->id;
-			$value->id = $value->ranking;
-			$value->ranking = $temp;
-		}
+		// $i = 0;
+		// foreach ($FMADM as $key => $value) {
+		// 	$temp = $value->id;
+		// 	$value->id = $value->ranking;
+		// 	$value->ranking = $temp;
+		// 	$i++;
+		// }
 
-		rsort($FMADM);
+		// rsort($FMADM);
+		$array = $this->bubble_sort($FMADM, 'ranking');
+		// print_r($coba);
+		// die;
+		// usort($FMADM, 'sortById');
 
-		foreach ($FMADM as $key => $value) {
-			$temp = $value->id;
-			$value->id = $value->ranking;
-			$value->ranking = $temp;
+
+
+		// $i = 0;
+		// $array = [];
+		// foreach ($FMADM as $key => $value) {
+		// 	if ($i > 0) {
+		// 		if ($value->id == $FMADM[$i - 1]->id) {
+		// 			$temp = $value;
+		// 			$value = $FMADM[$i - 1];
+		// 			$FMADM[$i - 1] = $temp;
+		// 			// if ($i == 2) {
+		// 			// 	# code...
+		// 			// 	print_r($value);
+		// 			// 	die;
+		// 			// }
+		// 			$array[$i - 1] = $FMADM[$i - 1];
+		// 			$array[$i] = $value;
+		// 		}
+		// 	}
+		// 	$i++;
+		// }
+		$lokasi = $this->M_FMADM->detailTabel('tabel_lokasi');
+
+		foreach ($array as $key => $value) {
+			$temp = '';
+			foreach ($lokasi as $key2 => $value2) {
+				if (isset($value->id_lokasi)) {
+					# code...
+					if ($value->id_lokasi == $value2->id) {
+						$temp = $value2->nama;
+					}
+				} else {
+					$temp = null;
+				}
+			}
 
 			//logika insert data ke tabel 'tabel_perankingan_sementara'
-			$dataSmntr = ['nama' => $value->nama, 'id_lokasi' => $value->id_lokasi, 'C1N' => $value->C1N, 'C2N' => $value->C2N, 'C3N' => $value->C3N, 'C4N' => $value->C4N, 'C5N' => $value->C5N, 'C6N' => $value->C6N, 'C7N' => $value->C7N, 'ranking' => $value->ranking];
+			$dataSmntr = ['nama' => $value->nama, 'id_lokasi' => $value->id_lokasi, 'C1N' => $value->C1N, 'C2N' => $value->C2N, 'C3N' => $value->C3N, 'C4N' => $value->C4N, 'C5N' => $value->C5N, 'C6N' => $value->C6N, 'C7N' => $value->C7N, 'ranking' => $value->ranking, 'nama_lokasi' => $temp];
 			$this->tambahData($dataSmntr, 'tabel_perankingan_sementara');
 		}
 
-		return $FMADM;
+		return $array;
 	}
 
 	//logika verifikasi

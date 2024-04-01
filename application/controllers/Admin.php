@@ -49,7 +49,19 @@ class Admin extends CI_Controller
 			$data["title"] = "Perankingan";
 			$data["semuaData"] = $this->M_FMADM->semuaData();
 			$data["FMADM"] = $this->M_FMADM->FMADM();
-			$data["ranking"] = $this->M_FMADM->ranking($data["FMADM"]);
+			$this->M_FMADM->ranking($data["FMADM"]);
+			$data["ranking"] = $this->M_FMADM->detailTabel('tabel_perankingan_sementara');
+			$data["lokasi"] = $this->M_FMADM->detailTabel('tabel_lokasi');
+
+			$data['lokasi_null'] = [];
+			$i = 0;
+			foreach ($data['ranking'] as $key => $value) {
+				if ($value->id_lokasi == null) {
+					$data['lokasi_null'][$i] = $value;
+				}
+				$i++;
+			}
+
 			$data["sidebar"] = 'perhitungan';
 			$this->load->view('templates/header', $data);
 			$this->load->view('templates/topbar');
@@ -284,26 +296,43 @@ class Admin extends CI_Controller
 		redirect(base_url('Admin/' . $direktori));
 	}
 
-	public function cetak()
+	public function cetak($id_lokasi = null)
 	{
 		if ($this->session->userdata('detailAdmin')) {
 			$data['title'] = 'Cetak';
 			$data['semua'] = $this->M_FMADM->semuaData();
-			$data['lokasi'] = $data['semua']['dataLokasi'];
-			// print_r($data['semua']['dataAlternatif']);
-			// die;
-			$temp = [];
-			foreach ($data['semua']['dataLokasi'] as $key => $value) {
-				foreach ($data['semua']['dataPerankinganSementara'] as $key2 => $value2) {
-					// print_r($value);
-					// echo '<br>';
-					// print_r($value2);
-					if ($value->id == $value2->id_lokasi) {
-						$value2->lokasi = $value->nama;
+			$data['dataLokasi'] = $this->M_FMADM->detailTabel('tabel_lokasi');
+			$data['dataPerankinganSementara'] = $this->M_FMADM->detailTabel('tabel_perankingan_sementara');
+			$data['dataPerankinganSementaraById'] = [];
+			$data['id_lokasi'] = $id_lokasi;
+			$data['lokasiById'] = [];
+
+			$data['lokasi_null'] = [];
+			$i = 0;
+			foreach ($data['dataPerankinganSementara'] as $key => $value) {
+				if ($value->id_lokasi == null) {
+					$data['lokasi_null'][$i] = $value;
+				}
+
+				$i++;
+			}
+
+			$i = 0;
+			if ($id_lokasi != null) {
+				foreach ($data['dataPerankinganSementara'] as $key => $value) {
+					if ($value->id_lokasi == $id_lokasi) {
+						$data['dataPerankinganSementaraById'][$i] =	$value;
+						$i++;
+					}
+				}
+				foreach ($data['dataLokasi'] as $key => $value) {
+					if ($value->id == $id_lokasi) {
+						$data['lokasiById'][0] = $value;
 					}
 				}
 			}
-			// print_r($data['semua']['dataAlternatif']);
+
+			// print_r($data['lokasiById']);
 			// die;
 
 			$this->load->view('templates/header', $data);

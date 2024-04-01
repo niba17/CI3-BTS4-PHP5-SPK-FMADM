@@ -197,7 +197,7 @@ function rangeTemperatur(kriteria) {
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td>18 < x > 35</td>
+                        <td>18 > x > 35</td>
                         <td>0</td>
                     </tr>
                     <tr>
@@ -239,7 +239,7 @@ function rangeCurahHujan(kriteria) {
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td>750 < x > 100</td>
+                        <td>100 > x > 750</td>
                         <td>0</td>
                     </tr>
                     <tr>
@@ -281,7 +281,7 @@ function rangeKelembaban(kriteria) {
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td>95 < x > 60</td>
+                        <td>60 > x > 95</td>
                         <td>0</td>
                     </tr>
                     <tr>
@@ -444,7 +444,7 @@ function rangePHH2O(kriteria) {
                 <tbody>
                     <tr>
                         <td>1</td>
-                        <td>9.0 < x > 4.7</td>
+                        <td>4.7 > x > 9.0</td>
                         <td>0</td>
                     </tr>
                     <tr>
@@ -575,7 +575,12 @@ function chart(alternatif, kriteria, bobot) {
                     ticks: {
                         beginAtZero: true,
                         // steps: 4,
-                        // stepValue: 0.25,
+
+
+
+
+         
+               // stepValue: 0.25,
                         max: 1
                     }
                 }]
